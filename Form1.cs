@@ -109,14 +109,17 @@ namespace SERVIDORES_SOCKETS
 
         private void ConfigurarLayoutChatProfesional()
         {
-            // Compactar tlpClientFields para liberar espacio vertical y evitar que empuje al chat fuera del GroupBox
-            tlpClientFields.Height = 124;
+            // Obtener el factor de escala DPI para ajustar las dimensiones proporcionalmente
+            float scale = this.DeviceDpi / 96f;
+
+            // Compactar tlpClientFields usando dimensiones escaladas para evitar desbordamiento y solapamiento
+            tlpClientFields.Height = (int)(124 * scale);
             tlpClientFields.RowStyles.Clear();
-            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F)); // Etiqueta IP
-            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F)); // Inputs IP/Puerto
-            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F)); // Etiqueta Usuario
-            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); // Input Usuario & Conectar/Desconectar
-            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); // Botón PING (Latido)
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F * scale)); // Etiqueta IP
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F * scale)); // Inputs IP/Puerto
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F * scale)); // Etiqueta Usuario
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F * scale)); // Input Usuario & Conectar/Desconectar
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F * scale)); // Botón PING (Latido)
 
             // Remover controles del GroupBox para agregarlos al contenedor dinámico
             gbCliente.Controls.Remove(rtbChat);
@@ -131,8 +134,11 @@ namespace SERVIDORES_SOCKETS
             lblDestino.Visible = false;
             lblMensaje.Visible = false;
 
-            // Configurar padding del GroupBox padre para dejar márgenes limpios y evitar recortes con el borde
-            gbCliente.Padding = new Padding(6, 20, 6, 12);
+            // Configurar padding del GroupBox padre de forma escalada para dejar un margen protector limpio en la base
+            int paddingLeftRight = (int)(6 * scale);
+            int paddingTop = (int)(20 * scale);
+            int paddingBottom = (int)(12 * scale);
+            gbCliente.Padding = new Padding(paddingLeftRight, paddingTop, paddingLeftRight, paddingBottom);
 
             // Contenedor principal del chat (ocupa todo el espacio restante abajo del panel superior)
             TableLayoutPanel tlpChat = new()
@@ -143,11 +149,11 @@ namespace SERVIDORES_SOCKETS
                 Padding = new Padding(0) // El padding lo maneja el GroupBox padre
             };
             tlpChat.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Fila del historial (flexible)
-            tlpChat.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));  // Fila de herramientas de envío (fija)
+            tlpChat.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F * scale));  // Fila de herramientas de envío (fija y escalada)
 
             // Chat en la parte superior
             rtbChat.Dock = DockStyle.Fill;
-            rtbChat.Margin = new Padding(0, 0, 0, 5);
+            rtbChat.Margin = new Padding(0, 0, 0, (int)(5 * scale));
             tlpChat.Controls.Add(rtbChat, 0, 0);
 
             // Panel inferior horizontal
@@ -165,13 +171,13 @@ namespace SERVIDORES_SOCKETS
 
             // Configurar los controles para que se expandan dinámicamente
             cmbDestino.Dock = DockStyle.Fill;
-            cmbDestino.Margin = new Padding(0, 0, 5, 0);
+            cmbDestino.Margin = new Padding(0, 0, (int)(5 * scale), 0);
 
             txtMensaje.Dock = DockStyle.Fill;
-            txtMensaje.Margin = new Padding(0, 2, 5, 0); // Ajuste vertical sutil para alineación de texto
+            txtMensaje.Margin = new Padding(0, (int)(2 * scale), (int)(5 * scale), 0); // Ajuste vertical sutil para alineación de texto
 
             btnEnviar.Dock = DockStyle.Fill;
-            btnEnviar.Margin = new Padding(0, 0, 5, 0);
+            btnEnviar.Margin = new Padding(0, 0, (int)(5 * scale), 0);
             btnEnviar.Text = "Enviar";
 
             btnEnviarArchivo.Dock = DockStyle.Fill;
