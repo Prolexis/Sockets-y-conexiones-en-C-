@@ -79,28 +79,8 @@ namespace SERVIDORES_SOCKETS
             // Hacer el chat de solo lectura antes de aplicar el tema para que no restablezca el BackColor a gris/blanco
             rtbChat.ReadOnly = true;
 
-            // Restaurar diseño side-by-side limpio y sin solapamientos
-            rtbChat.Location = new Point(10, 205);
-            rtbChat.Size = new Size(230, 100);
-
-            lblDestino.Visible = true;
-            lblDestino.Location = new Point(250, 200);
-
-            cmbDestino.Location = new Point(250, 220);
-            cmbDestino.Size = new Size(120, 25);
-
-            btnEnviarArchivo.Location = new Point(380, 220);
-            btnEnviarArchivo.Size = new Size(87, 25);
-            btnEnviarArchivo.Text = "Archivo"; // Texto corto para evitar recortes en el botón
-
-            lblMensaje.Visible = true;
-            lblMensaje.Location = new Point(250, 255);
-
-            txtMensaje.Location = new Point(250, 275);
-            txtMensaje.Size = new Size(120, 25);
-
-            btnEnviar.Location = new Point(380, 275);
-            btnEnviar.Size = new Size(87, 25);
+            // Configurar el layout dinámico profesional que evita solapamientos y soporta DPI scaling
+            ConfigurarLayoutChatProfesional();
 
             AplicarTema(this); // Aplicar tema por defecto
             Log("SISTEMA", "Interfaz de usuario inicializada. Listo para operar.", LogLevel.Info);
@@ -125,6 +105,77 @@ namespace SERVIDORES_SOCKETS
                 txtServerIp.Text = "No detectadas";
             }
             txtServerIp.ReadOnly = true;
+        }
+
+        private void ConfigurarLayoutChatProfesional()
+        {
+            // Remover controles del GroupBox para agregarlos al contenedor dinámico
+            gbCliente.Controls.Remove(rtbChat);
+            gbCliente.Controls.Remove(cmbDestino);
+            gbCliente.Controls.Remove(txtMensaje);
+            gbCliente.Controls.Remove(btnEnviar);
+            gbCliente.Controls.Remove(btnEnviarArchivo);
+            gbCliente.Controls.Remove(lblDestino);
+            gbCliente.Controls.Remove(lblMensaje);
+
+            // Ocultar etiquetas fijas redundantes (las marcas de agua las reemplazan)
+            lblDestino.Visible = false;
+            lblMensaje.Visible = false;
+
+            // Contenedor principal del chat (ocupa todo el espacio restante abajo del panel superior)
+            TableLayoutPanel tlpChat = new()
+            {
+                Dock = DockStyle.Fill,
+                RowCount = 2,
+                ColumnCount = 1,
+                Padding = new Padding(5, 5, 5, 5)
+            };
+            tlpChat.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Fila del historial (flexible)
+            tlpChat.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));  // Fila de herramientas de envío (fija)
+
+            // Chat en la parte superior
+            rtbChat.Dock = DockStyle.Fill;
+            rtbChat.Margin = new Padding(0, 0, 0, 5);
+            tlpChat.Controls.Add(rtbChat, 0, 0);
+
+            // Panel inferior horizontal
+            TableLayoutPanel tlpInputs = new()
+            {
+                Dock = DockStyle.Fill,
+                RowCount = 1,
+                ColumnCount = 4,
+                Margin = new Padding(0)
+            };
+            tlpInputs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F)); // Selector Destino
+            tlpInputs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F)); // Entrada de texto
+            tlpInputs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F)); // Botón Enviar
+            tlpInputs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F)); // Botón Archivo
+
+            // Configurar los controles para que se expandan dinámicamente
+            cmbDestino.Dock = DockStyle.Fill;
+            cmbDestino.Margin = new Padding(0, 0, 5, 0);
+
+            txtMensaje.Dock = DockStyle.Fill;
+            txtMensaje.Margin = new Padding(0, 2, 5, 0); // Ajuste vertical sutil para alineación de texto
+
+            btnEnviar.Dock = DockStyle.Fill;
+            btnEnviar.Margin = new Padding(0, 0, 5, 0);
+            btnEnviar.Text = "Enviar";
+
+            btnEnviarArchivo.Dock = DockStyle.Fill;
+            btnEnviarArchivo.Margin = new Padding(0, 0, 0, 0);
+            btnEnviarArchivo.Text = "Archivo";
+
+            tlpInputs.Controls.Add(cmbDestino, 0, 0);
+            tlpInputs.Controls.Add(txtMensaje, 1, 0);
+            tlpInputs.Controls.Add(btnEnviar, 2, 0);
+            tlpInputs.Controls.Add(btnEnviarArchivo, 3, 0);
+
+            tlpChat.Controls.Add(tlpInputs, 0, 1);
+
+            // Agregar al GroupBox y enviar al frente
+            gbCliente.Controls.Add(tlpChat);
+            tlpChat.BringToFront();
         }
 
         private void ConfigurarColumnasListView()
