@@ -109,6 +109,15 @@ namespace SERVIDORES_SOCKETS
 
         private void ConfigurarLayoutChatProfesional()
         {
+            // Compactar tlpClientFields para liberar espacio vertical y evitar que empuje al chat fuera del GroupBox
+            tlpClientFields.Height = 124;
+            tlpClientFields.RowStyles.Clear();
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F)); // Etiqueta IP
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F)); // Inputs IP/Puerto
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F)); // Etiqueta Usuario
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); // Input Usuario & Conectar/Desconectar
+            tlpClientFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); // Botón PING (Latido)
+
             // Remover controles del GroupBox para agregarlos al contenedor dinámico
             gbCliente.Controls.Remove(rtbChat);
             gbCliente.Controls.Remove(cmbDestino);
