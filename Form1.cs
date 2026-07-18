@@ -200,6 +200,10 @@ namespace SERVIDORES_SOCKETS
             // Agregar al GroupBox y enviar al fondo del Z-Order para que llene el espacio restante debajo de tlpClientFields (Dock=Top)
             gbCliente.Controls.Add(tlpChat);
             tlpChat.SendToBack();
+
+            // Forzar recálculo inmediato del layout para aplicar el Padding y Z-Order, evitando recortes en los botones
+            gbCliente.PerformLayout();
+            this.PerformLayout();
         }
 
         private void ConfigurarColumnasListView()
