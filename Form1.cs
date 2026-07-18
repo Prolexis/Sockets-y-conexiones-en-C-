@@ -208,13 +208,23 @@ namespace SERVIDORES_SOCKETS
 
         private void ConfigurarColumnasListView()
         {
+            float scale = this.DeviceDpi / 96f;
             lstClientes.Columns.Clear();
-            lstClientes.Columns.Add("Usuario", 120);
-            lstClientes.Columns.Add("IP Cliente", 130);
-            lstClientes.Columns.Add("Puerto", 80);
-            lstClientes.Columns.Add("Hora Conexión", 120);
+            lstClientes.Columns.Add("Usuario", (int)(110 * scale));
+            lstClientes.Columns.Add("IP Cliente", (int)(120 * scale));
+            lstClientes.Columns.Add("Puerto", (int)(65 * scale));
+            lstClientes.Columns.Add("Hora Conexión", -2); // Estirar para llenar el espacio restante y evitar la columna vacía
             lstClientes.FullRowSelect = true;
             lstClientes.GridLines = true;
+
+            // Registrar evento para recalcular el ancho de la última columna en redimensionamientos
+            lstClientes.Resize += (s, e) =>
+            {
+                if (lstClientes.Columns.Count > 0)
+                {
+                    lstClientes.Columns[lstClientes.Columns.Count - 1].Width = -2;
+                }
+            };
         }
 
         #region Servidor - Control de Interfaz
