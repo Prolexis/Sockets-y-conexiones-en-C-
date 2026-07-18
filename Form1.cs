@@ -140,11 +140,10 @@ namespace SERVIDORES_SOCKETS
             lblDestino.Visible = false;
             lblMensaje.Visible = false;
 
-            // Configurar padding del GroupBox padre de forma escalada para dejar un margen protector limpio en la base
-            int paddingLeftRight = (int)(6 * scale);
-            int paddingTop = (int)(20 * scale);
-            int paddingBottom = (int)(12 * scale);
-            gbCliente.Padding = new Padding(paddingLeftRight, paddingTop, paddingLeftRight, paddingBottom);
+            // NOTA: El GroupBox de Windows Forms ignora la propiedad Padding para acoplamientos (Dock).
+            // Por lo tanto, aplicamos los márgenes laterales y el margen de seguridad inferior directamente a tlpChat.
+            int marginSide = (int)(6 * scale);
+            int marginBottom = (int)(16 * scale); // Aumentado a 16px para centrar los botones perfectamente y evitar recortes
 
             // Contenedor principal del chat (ocupa todo el espacio restante abajo del panel superior)
             TableLayoutPanel tlpChat = new()
@@ -152,7 +151,7 @@ namespace SERVIDORES_SOCKETS
                 Dock = DockStyle.Fill,
                 RowCount = 2,
                 ColumnCount = 1,
-                Padding = new Padding(0) // El padding lo maneja el GroupBox padre
+                Padding = new Padding(marginSide, 0, marginSide, marginBottom) // Aplicado directamente en el contenedor del chat
             };
             tlpChat.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Fila del historial (flexible)
             tlpChat.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F * scale));  // Fila de herramientas de envío (fija y escalada)
