@@ -82,6 +82,9 @@ namespace SERVIDORES_SOCKETS
             // Configurar el layout dinámico profesional que evita solapamientos y soporta DPI scaling
             ConfigurarLayoutChatProfesional();
 
+            // Configurar el layout de la consola de logs flotante integrada
+            ConfigurarLayoutLogModerno();
+
             // Configurar el pintado moderno estilo Windows 11 (tarjetas con bordes redondeados y separadores)
             ConfigurarPintadoModerno();
 
@@ -204,6 +207,40 @@ namespace SERVIDORES_SOCKETS
             // Forzar recálculo inmediato del layout para aplicar el Padding y Z-Order, evitando recortes en los botones
             gbCliente.PerformLayout();
             this.PerformLayout();
+        }
+
+        private void ConfigurarLayoutLogModerno()
+        {
+            // Remover de gbLog
+            gbLog.Controls.Remove(rtxtLog);
+
+            float scale = this.DeviceDpi / 96f;
+
+            // Crear panel contenedor con color de fondo del log para que se vea integrado como consola
+            Panel pnlLog = new()
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(9, 9, 11), // Fondo ultra negro
+                Padding = new Padding((int)(8 * scale))
+            };
+
+            rtxtLog.Dock = DockStyle.Fill;
+            rtxtLog.BorderStyle = BorderStyle.None; // Quitar borde para diseño plano
+            pnlLog.Controls.Add(rtxtLog);
+
+            // Crear un panel externo para dar margen respecto al GroupBox (para que flote dentro de la tarjeta)
+            Panel pnlWrapper = new()
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent,
+                Padding = new Padding((int)(12 * scale), (int)(22 * scale), (int)(12 * scale), (int)(12 * scale)) // Margen alrededor de la consola
+            };
+            pnlWrapper.Controls.Add(pnlLog);
+
+            gbLog.Controls.Add(pnlWrapper);
+            pnlWrapper.SendToBack();
+
+            gbLog.PerformLayout();
         }
 
         private void ConfigurarColumnasListView()
