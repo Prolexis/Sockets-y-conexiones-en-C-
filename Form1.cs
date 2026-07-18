@@ -169,6 +169,7 @@ namespace SERVIDORES_SOCKETS
                 ColumnCount = 4,
                 Margin = new Padding(0)
             };
+            tlpInputs.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Forzar a la fila a estirarse al 100% del alto (30px)
             tlpInputs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F)); // Selector Destino
             tlpInputs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F)); // Entrada de texto
             tlpInputs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F)); // Botón Enviar
