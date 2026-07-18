@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-using System.Linq
+using System.Linq;
 
 namespace SERVIDORES_SOCKETS
 {
@@ -359,6 +359,7 @@ namespace SERVIDORES_SOCKETS
             {
                 _transferenciasEntrantes.Remove(fileId, out t);
             }
+            if (t == null) return;
             if (t.Stream == null)
             {
                 // Transferencia que el usuario rechazó al inicio: no hay nada que cerrar ni reportar como éxito.

@@ -425,6 +425,7 @@ namespace SERVIDORES_SOCKETS
             if (string.IsNullOrEmpty(contenido)) return;
 
             string seleccion = cmbDestino.SelectedItem as string ?? "(Todos)";
+            string destino = seleccion.Equals("(Todos)", StringComparison.OrdinalIgnoreCase) ? "" : seleccion;
 
             await _client.EnviarMensajeAsync(destino, contenido);
             txtMensaje.Clear();
@@ -462,6 +463,7 @@ namespace SERVIDORES_SOCKETS
             };
             if (dialogo.ShowDialog() != DialogResult.OK) return;
 
+            string seleccion = cmbDestino.SelectedItem as string ?? "(Todos)";
             string destino = seleccion.Equals("(Todos)", StringComparison.OrdinalIgnoreCase) ? "" : seleccion;
             btnEnviarArchivo.Enabled = false;
             try
