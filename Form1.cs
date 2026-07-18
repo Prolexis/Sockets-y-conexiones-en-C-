@@ -508,17 +508,28 @@ namespace SERVIDORES_SOCKETS
 
         private void btnThemeToggle_Click(object sender, EventArgs e)
         {
-            _isDarkMode = !_isDarkMode;
-            SetTitleBarTheme(_isDarkMode); // Sincronizar barra de título de Windows
-            
-            // Actualizar colores del log existente en memoria mediante reemplazo rápido de RTF
-            ActualizarColoresLogExistente();
+            // Desactivar repintado temporalmente para evitar parpadeos molestos
+            SendMessageInt(this.Handle, WM_SETREDRAW, 0, 0);
 
-            AplicarTema(this);
+            try
+            {
+                _isDarkMode = !_isDarkMode;
+                SetTitleBarTheme(_isDarkMode); // Sincronizar barra de título de Windows
+                
+                // Actualizar colores del log existente en memoria mediante reemplazo rápido de RTF
+                ActualizarColoresLogExistente();
 
-            // Actualizar la lista de clientes para re-pintar filas con el nuevo tema
-            SafeUpdateClientList();
-            this.Refresh(); // Forzar repintado completo de los bordes redondeados y gráficos
+                AplicarTema(this);
+
+                // Actualizar la lista de clientes para re-pintar filas con el nuevo tema
+                SafeUpdateClientList();
+            }
+            finally
+            {
+                // Volver a activar el repintado y forzar una única actualización visual limpia
+                SendMessageInt(this.Handle, WM_SETREDRAW, 1, 0);
+                this.Refresh(); // Forzar repintado completo de los bordes redondeados y gráficos
+            }
         }
 
         /// <summary>
@@ -771,7 +782,11 @@ namespace SERVIDORES_SOCKETS
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
+        [DllImport("user32.dll", EntryPoint = "SendMessage", CharSet = CharSet.Auto)]
+        private static extern int SendMessageInt(IntPtr hWnd, int msg, int wParam, int lParam);
+
         private const int EM_SETCUEBANNER = 0x1501;
+        private const int WM_SETREDRAW = 0x000B;
 
         private void ConfigurarPlaceholders()
         {
