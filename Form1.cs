@@ -122,13 +122,16 @@ namespace SERVIDORES_SOCKETS
             lblDestino.Visible = false;
             lblMensaje.Visible = false;
 
+            // Configurar padding del GroupBox padre para dejar márgenes limpios y evitar recortes con el borde
+            gbCliente.Padding = new Padding(6, 20, 6, 12);
+
             // Contenedor principal del chat (ocupa todo el espacio restante abajo del panel superior)
             TableLayoutPanel tlpChat = new()
             {
                 Dock = DockStyle.Fill,
                 RowCount = 2,
                 ColumnCount = 1,
-                Padding = new Padding(5, 2, 5, 12) // Mayor padding inferior (12) para evitar recortes con el borde
+                Padding = new Padding(0) // El padding lo maneja el GroupBox padre
             };
             tlpChat.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Fila del historial (flexible)
             tlpChat.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));  // Fila de herramientas de envío (fija)
@@ -173,9 +176,9 @@ namespace SERVIDORES_SOCKETS
 
             tlpChat.Controls.Add(tlpInputs, 0, 1);
 
-            // Agregar al GroupBox y enviar al frente
+            // Agregar al GroupBox y enviar al fondo del Z-Order para que llene el espacio restante debajo de tlpClientFields (Dock=Top)
             gbCliente.Controls.Add(tlpChat);
-            tlpChat.BringToFront();
+            tlpChat.SendToBack();
         }
 
         private void ConfigurarColumnasListView()
