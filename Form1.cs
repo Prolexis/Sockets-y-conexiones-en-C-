@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace SERVIDORES_SOCKETS
@@ -15,6 +16,7 @@ namespace SERVIDORES_SOCKETS
         public Form1()
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
 
             // Suscribir eventos del servidor
             _server.OnLog += (msg, level) => Log("SERVIDOR", msg, level);
@@ -79,6 +81,12 @@ namespace SERVIDORES_SOCKETS
             cmbDestino.Items.Add("(Todos)");
             cmbDestino.SelectedIndex = 0;
 
+            // Hacer el chat de solo lectura para evitar ediciones accidentales del historial
+            rtbChat.ReadOnly = true;
+
+            // Configurar placeholders/marcas de agua nativas
+            ConfigurarPlaceholders();
+
             // Mostrar IPs locales informativas en el servidor y ponerlo en solo lectura
             try
             {
@@ -102,6 +110,8 @@ namespace SERVIDORES_SOCKETS
             lstClientes.Columns.Add("IP Cliente", 130);
             lstClientes.Columns.Add("Puerto", 80);
             lstClientes.Columns.Add("Hora Conexión", 120);
+            lstClientes.FullRowSelect = true;
+            lstClientes.GridLines = true;
         }
 
         #region Servidor - Control de Interfaz
@@ -560,6 +570,22 @@ namespace SERVIDORES_SOCKETS
             int idx = cmbDestino.Items.IndexOf(seleccionPrevia);
             cmbDestino.SelectedIndex = idx >= 0 ? idx : 0; // si el usuario elegido se desconectó, vuelve a "(Todos)"
         }
+
+        #region Win32 Placeholders (Cue Banners)
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+
+        private const int EM_SETCUEBANNER = 0x1501;
+
+        private void ConfigurarPlaceholders()
+        {
+            SendMessage(txtClientUser.Handle, EM_SETCUEBANNER, 0, "Nombre del usuario...");
+            SendMessage(txtMensaje.Handle, EM_SETCUEBANNER, 0, "Escribe un mensaje aquí...");
+            SendMessage(txtClientIp.Handle, EM_SETCUEBANNER, 0, "IP del servidor...");
+            SendMessage(txtClientPort.Handle, EM_SETCUEBANNER, 0, "Puerto...");
+            SendMessage(txtServerPort.Handle, EM_SETCUEBANNER, 0, "Puerto...");
+        }
+        #endregion
 
     }
 }
