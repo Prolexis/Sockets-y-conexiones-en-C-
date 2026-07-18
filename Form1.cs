@@ -79,24 +79,28 @@ namespace SERVIDORES_SOCKETS
             // Hacer el chat de solo lectura antes de aplicar el tema para que no restablezca el BackColor a gris/blanco
             rtbChat.ReadOnly = true;
 
-            // Rediseñar el layout de controles del chat para formato profesional (estilo Slack/Discord)
-            rtbChat.Location = new Point(10, 185);
-            rtbChat.Size = new Size(457, 92);
+            // Restaurar diseño side-by-side limpio y sin solapamientos
+            rtbChat.Location = new Point(10, 205);
+            rtbChat.Size = new Size(230, 100);
 
-            lblDestino.Visible = false;
-            lblMensaje.Visible = false;
+            lblDestino.Visible = true;
+            lblDestino.Location = new Point(250, 200);
 
-            cmbDestino.Location = new Point(10, 285);
-            cmbDestino.Size = new Size(100, 25);
+            cmbDestino.Location = new Point(250, 220);
+            cmbDestino.Size = new Size(120, 25);
 
-            txtMensaje.Location = new Point(115, 285);
-            txtMensaje.Size = new Size(195, 25);
+            btnEnviarArchivo.Location = new Point(380, 220);
+            btnEnviarArchivo.Size = new Size(87, 25);
+            btnEnviarArchivo.Text = "Archivo"; // Texto corto para evitar recortes en el botón
 
-            btnEnviar.Location = new Point(315, 285);
-            btnEnviar.Size = new Size(70, 25);
+            lblMensaje.Visible = true;
+            lblMensaje.Location = new Point(250, 255);
 
-            btnEnviarArchivo.Location = new Point(390, 285);
-            btnEnviarArchivo.Size = new Size(77, 25);
+            txtMensaje.Location = new Point(250, 275);
+            txtMensaje.Size = new Size(120, 25);
+
+            btnEnviar.Location = new Point(380, 275);
+            btnEnviar.Size = new Size(87, 25);
 
             AplicarTema(this); // Aplicar tema por defecto
             Log("SISTEMA", "Interfaz de usuario inicializada. Listo para operar.", LogLevel.Info);
