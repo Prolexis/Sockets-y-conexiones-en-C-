@@ -1,0 +1,27 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache/options
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Mono Auto Generated Files
+*.pidb
+*.userprefs
+
+# Tooling
+*.suo
+*.user
+*.userprefs
+*.dbmdl
+*.jfm
