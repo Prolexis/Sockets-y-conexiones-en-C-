@@ -75,14 +75,34 @@ namespace SERVIDORES_SOCKETS
         private void Form1_Load(object sender, EventArgs e)
         {
             ConfigurarColumnasListView();
+
+            // Hacer el chat de solo lectura antes de aplicar el tema para que no restablezca el BackColor a gris/blanco
+            rtbChat.ReadOnly = true;
+
+            // Rediseñar el layout de controles del chat para formato profesional (estilo Slack/Discord)
+            rtbChat.Location = new Point(10, 185);
+            rtbChat.Size = new Size(457, 92);
+
+            lblDestino.Visible = false;
+            lblMensaje.Visible = false;
+
+            cmbDestino.Location = new Point(10, 285);
+            cmbDestino.Size = new Size(100, 25);
+
+            txtMensaje.Location = new Point(115, 285);
+            txtMensaje.Size = new Size(195, 25);
+
+            btnEnviar.Location = new Point(315, 285);
+            btnEnviar.Size = new Size(70, 25);
+
+            btnEnviarArchivo.Location = new Point(390, 285);
+            btnEnviarArchivo.Size = new Size(77, 25);
+
             AplicarTema(this); // Aplicar tema por defecto
             Log("SISTEMA", "Interfaz de usuario inicializada. Listo para operar.", LogLevel.Info);
 
             cmbDestino.Items.Add("(Todos)");
             cmbDestino.SelectedIndex = 0;
-
-            // Hacer el chat de solo lectura para evitar ediciones accidentales del historial
-            rtbChat.ReadOnly = true;
 
             // Configurar placeholders/marcas de agua nativas
             ConfigurarPlaceholders();
