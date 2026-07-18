@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Net;
+using System.Net.Sockets;
 using System.Windows.Forms;
 
 namespace SERVIDORES_SOCKETS
@@ -77,6 +78,21 @@ namespace SERVIDORES_SOCKETS
 
             cmbDestino.Items.Add("(Todos)");
             cmbDestino.SelectedIndex = 0;
+
+            // Mostrar IPs locales informativas en el servidor y ponerlo en solo lectura
+            try
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                var ips = host.AddressList
+                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                    .Select(ip => ip.ToString());
+                txtServerIp.Text = string.Join(", ", ips);
+            }
+            catch (Exception)
+            {
+                txtServerIp.Text = "No detectadas";
+            }
+            txtServerIp.ReadOnly = true;
         }
 
         private void ConfigurarColumnasListView()
@@ -91,14 +107,6 @@ namespace SERVIDORES_SOCKETS
         #region Servidor - Control de Interfaz
         private void btnStartServer_Click(object sender, EventArgs e)
         {
-            // Validar IP
-            string ip = txtServerIp.Text.Trim();
-            if (string.IsNullOrEmpty(ip) || !IPAddress.TryParse(ip, out _))
-            {
-                MessageBox.Show("Por favor, ingrese una dirección IP de escucha válida.", "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
             // Validar Puerto
             if (!int.TryParse(txtServerPort.Text.Trim(), out int port) || port < 1 || port > 65535)
             {
@@ -108,7 +116,7 @@ namespace SERVIDORES_SOCKETS
 
             try
             {
-                _server.Start(ip, port);
+                _server.Start(port);
             }
             catch (Exception)
             {
@@ -133,7 +141,7 @@ namespace SERVIDORES_SOCKETS
 
             btnStartServer.Enabled = !isRunning;
             btnStopServer.Enabled = isRunning;
-            txtServerIp.ReadOnly = isRunning;
+            txtServerIp.ReadOnly = true;
             txtServerPort.ReadOnly = isRunning;
 
             if (isRunning)

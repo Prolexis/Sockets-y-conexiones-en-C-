@@ -44,25 +44,27 @@ namespace SERVIDORES_SOCKETS
         }
 
         /// <summary>
-        /// Inicia la escucha del servidor en la IP y puerto especificados.
+        /// Inicia la escucha del servidor en todas las interfaces de red de la máquina (0.0.0.0) en el puerto especificado.
         /// </summary>
-        public void Start(string ipAddress, int port)
+        public void Start(int port)
         {
             if (_running) return;
 
-            if (!IPAddress.TryParse(ipAddress, out IPAddress? localAddr))
-            {
-                throw new ArgumentException("Dirección IP inválida.");
-            }
-
             try
             {
-                _listener = new TcpListener(localAddr, port);
+                _listener = new TcpListener(IPAddress.Any, port);
                 _listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 _listener.Start();
                 _running = true;
 
-                OnLog?.Invoke($"Servidor iniciado en {ipAddress}:{port}. Esperando conexiones...", LogLevel.Info);
+                // Obtener IPs locales de la máquina
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                var ips = host.AddressList
+                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                    .Select(ip => ip.ToString());
+                string ipList = string.Join(", ", ips);
+
+                OnLog?.Invoke($"Servidor escuchando en todas las interfaces (0.0.0.0), puerto {port}. IPs locales detectadas: {ipList}", LogLevel.Info);
                 OnStateChanged?.Invoke(true);
 
                 // Iniciar el bucle de aceptación asíncrono en segundo plano
