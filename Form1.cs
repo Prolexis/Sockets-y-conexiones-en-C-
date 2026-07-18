@@ -219,6 +219,7 @@ namespace SERVIDORES_SOCKETS
             // Crear panel contenedor con color de fondo del log para que se vea integrado como consola
             Panel pnlLog = new()
             {
+                Name = "pnlLog", // Asignar nombre para identificarlo al aplicar el tema
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(9, 9, 11), // Fondo ultra negro
                 Padding = new Padding((int)(8 * scale))
@@ -452,8 +453,8 @@ namespace SERVIDORES_SOCKETS
                     break;
                 case LogLevel.Info:
                 default:
-                    // Color de texto claro/consola
-                    color = Color.FromArgb(228, 228, 231);
+                    // Color de texto adaptativo según el tema
+                    color = _isDarkMode ? Color.FromArgb(228, 228, 231) : Color.FromArgb(51, 65, 85);
                     break;
             }
 
@@ -482,6 +483,10 @@ namespace SERVIDORES_SOCKETS
         {
             _isDarkMode = !_isDarkMode;
             SetTitleBarTheme(_isDarkMode); // Sincronizar barra de título de Windows
+            
+            // Actualizar colores del log existente en memoria mediante reemplazo rápido de RTF
+            ActualizarColoresLogExistente();
+
             AplicarTema(this);
 
             // Actualizar la lista de clientes para re-pintar filas con el nuevo tema
@@ -601,12 +606,16 @@ namespace SERVIDORES_SOCKETS
                         lbl.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
                     }
                 }
+                else if (child is Panel pnl && pnl.Name == "pnlLog")
+                {
+                    pnl.BackColor = _isDarkMode ? Color.FromArgb(9, 9, 11) : Color.FromArgb(248, 250, 252);
+                }
                 else if (child is RichTextBox rtb && rtb.Name == "rtxtLog")
                 {
-                    // Consola de comandos con fondo oscuro profundo y fuente monospace
-                    rtb.BackColor = Color.FromArgb(10, 15, 30);
-                    rtb.ForeColor = Color.FromArgb(241, 245, 249);
-                    rtb.BorderStyle = BorderStyle.FixedSingle;
+                    // Consola de comandos con fondo adaptivo y fuente monospace
+                    rtb.BackColor = _isDarkMode ? Color.FromArgb(9, 9, 11) : Color.FromArgb(248, 250, 252);
+                    rtb.ForeColor = _isDarkMode ? Color.FromArgb(228, 228, 231) : Color.FromArgb(51, 65, 85);
+                    rtb.BorderStyle = BorderStyle.None; // Mantener diseño sin bordes
                     rtb.Font = new Font("Consolas", 9F, FontStyle.Regular);
                 }
                 else if (child is RichTextBox rtb2 && rtb2.Name == "rtbChat")
@@ -843,6 +852,28 @@ namespace SERVIDORES_SOCKETS
             path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
             path.CloseFigure();
             return path;
+        }
+        private void ActualizarColoresLogExistente()
+        {
+            try
+            {
+                string? rtf = rtxtLog.Rtf;
+                if (rtf == null) return;
+
+                // Reemplazar la definición de color del texto informativo en la tabla de colores del RTF
+                if (_isDarkMode)
+                {
+                    // Cambiar de modo claro (51,65,85) a modo oscuro (228,228,231)
+                    rtf = rtf.Replace(@"\red51\green65\blue85", @"\red228\green228\blue231");
+                }
+                else
+                {
+                    // Cambiar de modo oscuro (228,228,231) a modo claro (51,65,85)
+                    rtf = rtf.Replace(@"\red228\green228\blue231", @"\red51\green65\blue85");
+                }
+                rtxtLog.Rtf = rtf;
+            }
+            catch { }
         }
         #endregion
 
