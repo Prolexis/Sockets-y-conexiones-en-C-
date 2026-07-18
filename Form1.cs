@@ -82,6 +82,12 @@ namespace SERVIDORES_SOCKETS
             // Configurar el layout dinámico profesional que evita solapamientos y soporta DPI scaling
             ConfigurarLayoutChatProfesional();
 
+            // Configurar el pintado moderno estilo Windows 11 (tarjetas con bordes redondeados y separadores)
+            ConfigurarPintadoModerno();
+
+            // Sincronizar barra de título de Windows al arrancar
+            SetTitleBarTheme(_isDarkMode);
+
             AplicarTema(this); // Aplicar tema por defecto
             Log("SISTEMA", "Interfaz de usuario inicializada. Listo para operar.", LogLevel.Info);
 
@@ -424,10 +430,12 @@ namespace SERVIDORES_SOCKETS
         private void btnThemeToggle_Click(object sender, EventArgs e)
         {
             _isDarkMode = !_isDarkMode;
+            SetTitleBarTheme(_isDarkMode); // Sincronizar barra de título de Windows
             AplicarTema(this);
 
             // Actualizar la lista de clientes para re-pintar filas con el nuevo tema
             SafeUpdateClientList();
+            this.Refresh(); // Forzar repintado completo de los bordes redondeados y gráficos
         }
 
         /// <summary>
@@ -677,6 +685,113 @@ namespace SERVIDORES_SOCKETS
             SendMessage(txtClientIp.Handle, EM_SETCUEBANNER, 0, "IP del servidor...");
             SendMessage(txtClientPort.Handle, EM_SETCUEBANNER, 0, "Puerto...");
             SendMessage(txtServerPort.Handle, EM_SETCUEBANNER, 0, "Puerto...");
+        }
+        #endregion
+
+        #region Windows 11 Estilos 2026 y GDI+ Custom Paint
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
+        private void SetTitleBarTheme(bool darkMode)
+        {
+            try
+            {
+                int useDarkMode = darkMode ? 1 : 0;
+                DwmSetWindowAttribute(this.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useDarkMode, sizeof(int));
+                // Forzar refresco de la barra de título no-cliente
+                this.Width++;
+                this.Width--;
+            }
+            catch { }
+        }
+
+        private void ConfigurarPintadoModerno()
+        {
+            // Registrar los eventos de pintura personalizados para los GroupBoxes
+            gbCliente.Paint += DibujarGroupBoxModerno;
+            gbServidor.Paint += DibujarGroupBoxModerno;
+            gbClientes.Paint += DibujarGroupBoxModerno;
+            gbLog.Paint += DibujarGroupBoxModerno;
+
+            // Registrar el evento de pintura del panel de cabecera
+            pnlHeader.Paint += PnlHeader_Paint;
+        }
+
+        private void DibujarGroupBoxModerno(object? sender, PaintEventArgs e)
+        {
+            if (sender == null) return;
+            GroupBox gb = (GroupBox)sender;
+            Graphics g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            // Colores del tema actual
+            Color borderColor = _isDarkMode ? Color.FromArgb(51, 65, 85) : Color.FromArgb(203, 213, 225); // Slate 700 vs Slate 300
+            Color backColor = _isDarkMode ? Color.FromArgb(30, 41, 59) : Color.White; // Slate 800 vs White
+            Color textColor = _isDarkMode ? Color.FromArgb(248, 250, 252) : Color.FromArgb(15, 23, 42);
+
+            // Limpiar fondo con el color de la tarjeta
+            using (SolidBrush brush = new(backColor))
+            {
+                g.FillRectangle(brush, gb.ClientRectangle);
+            }
+
+            // Dibujar borde redondeado
+            float scale = this.DeviceDpi / 96f;
+            int r = (int)(8 * scale); // Radio adaptado a DPI
+            Rectangle rect = new(0, (int)(10 * scale), gb.Width - 1, gb.Height - (int)(11 * scale));
+            
+            using (System.Drawing.Drawing2D.GraphicsPath path = GetRoundedRectPath(rect, r))
+            {
+                using (Pen pen = new(borderColor, 1.5f))
+                {
+                    g.DrawPath(pen, path);
+                }
+            }
+
+            // Dibujar título del GroupBox con tipografía premium
+            if (!string.IsNullOrEmpty(gb.Text))
+            {
+                using (SolidBrush textBrush = new(textColor))
+                {
+                    using (Font font = new("Segoe UI Semibold", 9.75F, FontStyle.Bold))
+                    {
+                        SizeF textSize = g.MeasureString(gb.Text, font);
+                        // Dibujar un pequeño rectángulo de fondo detrás del texto para que no cruce la línea
+                        RectangleF textRect = new((int)(12 * scale), 0, textSize.Width + (int)(6 * scale), textSize.Height);
+                        using (SolidBrush backBrush = new(backColor))
+                        {
+                            g.FillRectangle(backBrush, textRect);
+                        }
+                        g.DrawString(gb.Text, font, textBrush, (int)(15 * scale), 0);
+                    }
+                }
+            }
+        }
+
+        private void PnlHeader_Paint(object? sender, PaintEventArgs e)
+        {
+            if (sender == null) return;
+            Panel p = (Panel)sender;
+            Color lineColor = _isDarkMode ? Color.FromArgb(51, 65, 85) : Color.FromArgb(203, 213, 225); // Slate 700 / Slate 300
+            using (Pen pen = new(lineColor, 1f))
+            {
+                e.Graphics.DrawLine(pen, 0, p.Height - 1, p.Width, p.Height - 1);
+            }
+        }
+
+        private System.Drawing.Drawing2D.GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath path = new();
+            int d = radius * 2;
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
         }
         #endregion
 
