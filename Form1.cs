@@ -128,10 +128,10 @@ namespace SERVIDORES_SOCKETS
                 Dock = DockStyle.Fill,
                 RowCount = 2,
                 ColumnCount = 1,
-                Padding = new Padding(5, 5, 5, 5)
+                Padding = new Padding(5, 2, 5, 12) // Mayor padding inferior (12) para evitar recortes con el borde
             };
             tlpChat.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Fila del historial (flexible)
-            tlpChat.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));  // Fila de herramientas de envío (fija)
+            tlpChat.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));  // Fila de herramientas de envío (fija)
 
             // Chat en la parte superior
             rtbChat.Dock = DockStyle.Fill;
