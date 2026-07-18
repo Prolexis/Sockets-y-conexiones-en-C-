@@ -172,8 +172,8 @@ namespace SERVIDORES_SOCKETS
                 item.SubItems.Add(c.HoraConexion.ToString("HH:mm:ss"));
 
                 // Aplicar estilo de colores según tema para las filas de ListView
-                item.BackColor = _isDarkMode ? Color.FromArgb(30, 30, 36) : Color.White;
-                item.ForeColor = _isDarkMode ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55);
+                item.BackColor = _isDarkMode ? Color.FromArgb(15, 23, 42) : Color.White;
+                item.ForeColor = _isDarkMode ? Color.FromArgb(248, 250, 252) : Color.FromArgb(15, 23, 42);
 
                 lstClientes.Items.Add(item);
             }
@@ -324,25 +324,31 @@ namespace SERVIDORES_SOCKETS
         /// </summary>
         private void AplicarTema(Control parent)
         {
-            Color backColor = _isDarkMode ? Color.FromArgb(30, 30, 36) : Color.FromArgb(248, 249, 250);
-            Color panelColor = _isDarkMode ? Color.FromArgb(42, 42, 50) : Color.White;
-            Color textColor = _isDarkMode ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55);
-            Color controlBack = _isDarkMode ? Color.FromArgb(30, 30, 36) : Color.White;
-            Color buttonColor = _isDarkMode ? Color.FromArgb(59, 130, 246) : Color.FromArgb(37, 99, 235);
-            Color buttonHover = _isDarkMode ? Color.FromArgb(37, 99, 235) : Color.FromArgb(29, 78, 216);
+            // Paleta de colores inspirada en interfaces web modernas (SaaS)
+            Color backColor = _isDarkMode ? Color.FromArgb(15, 23, 42) : Color.FromArgb(241, 245, 249); // Slate 900 vs Slate 100
+            Color panelColor = _isDarkMode ? Color.FromArgb(30, 41, 59) : Color.White; // Slate 800 vs White
+            Color textColor = _isDarkMode ? Color.FromArgb(248, 250, 252) : Color.FromArgb(15, 23, 42); // Slate 50 vs Slate 900
+            Color controlBack = _isDarkMode ? Color.FromArgb(15, 23, 42) : Color.White; // Fondo de inputs
+            Color mutedTextColor = _isDarkMode ? Color.FromArgb(148, 163, 184) : Color.FromArgb(71, 85, 105); // Slate 400 vs Slate 600
 
             this.BackColor = backColor;
             this.ForeColor = textColor;
 
             btnThemeToggle.Text = _isDarkMode ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
 
-            AplicarTemaRecursivo(parent, backColor, panelColor, textColor, controlBack, buttonColor, buttonHover);
+            AplicarTemaRecursivo(parent, backColor, panelColor, textColor, controlBack, mutedTextColor);
         }
 
-        private void AplicarTemaRecursivo(Control control, Color backColor, Color panelColor, Color textColor, Color controlBack, Color buttonColor, Color buttonHover)
+        private void AplicarTemaRecursivo(Control control, Color backColor, Color panelColor, Color textColor, Color controlBack, Color mutedTextColor)
         {
             foreach (Control child in control.Controls)
             {
+                // Unificar tipografía del sistema
+                if (child.Font.Name != "Segoe UI" && child.Font.Name != "Segoe UI Semibold" && !(child is RichTextBox && child.Name == "rtxtLog"))
+                {
+                    child.Font = new Font("Segoe UI", child.Font.Size, child.Font.Style);
+                }
+
                 if (child is Panel && child.Name == "pnlHeader")
                 {
                     child.BackColor = panelColor;
@@ -352,6 +358,7 @@ namespace SERVIDORES_SOCKETS
                 {
                     gb.BackColor = panelColor;
                     gb.ForeColor = textColor;
+                    gb.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
                 }
                 else if (child is TableLayoutPanel tlp)
                 {
@@ -360,58 +367,95 @@ namespace SERVIDORES_SOCKETS
                 }
                 else if (child is Button btn)
                 {
+                    btn.FlatStyle = FlatStyle.Flat;
+                    btn.FlatAppearance.BorderSize = 0;
+                    btn.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
+                    btn.Cursor = Cursors.Hand;
+
                     if (btn == btnThemeToggle)
                     {
-                        btn.BackColor = _isDarkMode ? Color.FromArgb(63, 63, 70) : Color.FromArgb(229, 231, 235);
+                        btn.BackColor = _isDarkMode ? Color.FromArgb(71, 85, 105) : Color.FromArgb(226, 232, 240);
                         btn.ForeColor = textColor;
-                        btn.FlatAppearance.BorderColor = _isDarkMode ? Color.FromArgb(82, 82, 91) : Color.FromArgb(209, 213, 219);
+                        btn.FlatAppearance.MouseOverBackColor = _isDarkMode ? Color.FromArgb(100, 116, 139) : Color.FromArgb(203, 213, 225);
+                    }
+                    else if (btn.Name == "btnDisconnect" || btn.Name == "btnStopServer")
+                    {
+                        // Botón destructivo / peligroso: Rojo elegante
+                        btn.BackColor = Color.FromArgb(239, 68, 68); // Red 500
+                        btn.ForeColor = Color.White;
+                        btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(220, 38, 38); // Red 600
+                    }
+                    else if (btn.Name == "btnPing")
+                    {
+                        // Botón secundario / neutral
+                        btn.BackColor = _isDarkMode ? Color.FromArgb(71, 85, 105) : Color.FromArgb(226, 232, 240);
+                        btn.ForeColor = _isDarkMode ? Color.White : Color.FromArgb(15, 23, 42);
+                        btn.FlatAppearance.MouseOverBackColor = _isDarkMode ? Color.FromArgb(100, 116, 139) : Color.FromArgb(203, 213, 225);
                     }
                     else
                     {
-                        btn.BackColor = buttonColor;
+                        // Botón primario: Índigo moderno
+                        btn.BackColor = Color.FromArgb(79, 70, 229); // Indigo 600
                         btn.ForeColor = Color.White;
-                        btn.FlatAppearance.MouseOverBackColor = buttonHover;
-                        btn.FlatAppearance.BorderColor = _isDarkMode ? Color.FromArgb(59, 130, 246) : Color.FromArgb(37, 99, 235);
+                        btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(67, 56, 202); // Indigo 700
                     }
                 }
                 else if (child is TextBox tb)
                 {
                     tb.BackColor = controlBack;
                     tb.ForeColor = textColor;
+                    tb.BorderStyle = BorderStyle.FixedSingle;
+                    tb.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular);
                 }
                 else if (child is ListView lv)
                 {
                     lv.BackColor = controlBack;
                     lv.ForeColor = textColor;
+                    lv.BorderStyle = BorderStyle.FixedSingle;
+                    lv.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
                 }
                 else if (child is Label lbl)
                 {
-                    if (lbl.Name != "lblServerStatus")
+                    if (lbl.Name == "lblServerStatus")
+                    {
+                        // Se actualiza de forma independiente con su propio color de estado
+                    }
+                    else if (lbl.Name == "lblTitle")
                     {
                         lbl.ForeColor = textColor;
+                        lbl.Font = new Font("Segoe UI Semibold", 16F, FontStyle.Bold);
+                    }
+                    else
+                    {
+                        lbl.ForeColor = mutedTextColor;
+                        lbl.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
                     }
                 }
                 else if (child is RichTextBox rtb && rtb.Name == "rtxtLog")
                 {
-                    // La consola se mantiene siempre oscura para mejor visibilidad y contraste
-                    rtb.BackColor = Color.FromArgb(24, 24, 27);
-                    rtb.ForeColor = Color.FromArgb(228, 228, 231);
+                    // Consola de comandos con fondo oscuro profundo y fuente monospace
+                    rtb.BackColor = Color.FromArgb(10, 15, 30);
+                    rtb.ForeColor = Color.FromArgb(241, 245, 249);
+                    rtb.BorderStyle = BorderStyle.FixedSingle;
+                    rtb.Font = new Font("Consolas", 9F, FontStyle.Regular);
                 }
                 else if (child is RichTextBox rtb2 && rtb2.Name == "rtbChat")
                 {
                     rtb2.BackColor = controlBack;
                     rtb2.ForeColor = textColor;
+                    rtb2.BorderStyle = BorderStyle.FixedSingle;
+                    rtb2.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
                 }
                 else if (child is ComboBox cmb)
                 {
                     cmb.BackColor = controlBack;
                     cmb.ForeColor = textColor;
+                    cmb.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
                 }
-
 
                 if (child.Controls.Count > 0)
                 {
-                    AplicarTemaRecursivo(child, backColor, panelColor, textColor, controlBack, buttonColor, buttonHover);
+                    AplicarTemaRecursivo(child, backColor, panelColor, textColor, controlBack, mutedTextColor);
                 }
             }
         }
