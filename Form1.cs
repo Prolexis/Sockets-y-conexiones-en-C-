@@ -45,27 +45,38 @@ namespace SERVIDORES_SOCKETS
 
                 void MostrarDialogo()
                 {
-                    using SaveFileDialog dlg = new()
+                    try
                     {
-                        FileName = nombreArchivo,
-                        Title = $"Guardar archivo recibido de {tamaño / 1024} KB",
-                        OverwritePrompt = true
-                    };
-                    if (dlg.ShowDialog(this) == DialogResult.OK)
-                    {
-                        resultado = dlg.FileName;
+                        using SaveFileDialog dlg = new()
+                        {
+                            FileName = nombreArchivo,
+                            Title = $"Guardar archivo recibido de {tamaño / 1024} KB",
+                            OverwritePrompt = true
+                        };
+                        if (dlg.ShowDialog(this) == DialogResult.OK)
+                        {
+                            resultado = dlg.FileName;
+                        }
                     }
+                    catch { }
                 }
 
-                if (this.IsDisposed) return null;
-                if (this.InvokeRequired)
+                if (this.IsDisposed || !this.IsHandleCreated) return null;
+                try
                 {
-                    // Invoke SÍNCRONO (no BeginInvoke): el hilo de red debe esperar la decisión del usuario.
-                    this.Invoke((Action)MostrarDialogo);
+                    if (this.InvokeRequired)
+                    {
+                        // Invoke SÍNCRONO (no BeginInvoke): el hilo de red debe esperar la decisión del usuario.
+                        this.Invoke((Action)MostrarDialogo);
+                    }
+                    else
+                    {
+                        MostrarDialogo();
+                    }
                 }
-                else
+                catch
                 {
-                    MostrarDialogo();
+                    return null;
                 }
                 return resultado;
             };
@@ -296,7 +307,11 @@ namespace SERVIDORES_SOCKETS
 
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(new Action(() => SafeUpdateServerUI(isRunning)));
+                try
+                {
+                    this.BeginInvoke(new Action(() => SafeUpdateServerUI(isRunning)));
+                }
+                catch { }
                 return;
             }
 
@@ -325,7 +340,11 @@ namespace SERVIDORES_SOCKETS
 
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(new Action(SafeUpdateClientList));
+                try
+                {
+                    this.BeginInvoke(new Action(SafeUpdateClientList));
+                }
+                catch { }
                 return;
             }
 
@@ -407,7 +426,11 @@ namespace SERVIDORES_SOCKETS
 
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(new Action(() => SafeUpdateClientUI(isConnected)));
+                try
+                {
+                    this.BeginInvoke(new Action(() => SafeUpdateClientUI(isConnected)));
+                }
+                catch { }
                 return;
             }
 
@@ -435,7 +458,11 @@ namespace SERVIDORES_SOCKETS
 
             if (rtxtLog.InvokeRequired)
             {
-                rtxtLog.BeginInvoke(new Action(() => Log(context, message, level)));
+                try
+                {
+                    rtxtLog.BeginInvoke(new Action(() => Log(context, message, level)));
+                }
+                catch { }
                 return;
             }
 
@@ -663,7 +690,11 @@ namespace SERVIDORES_SOCKETS
             if (this.IsDisposed || !rtbChat.IsHandleCreated || rtbChat.IsDisposed) return;
             if (rtbChat.InvokeRequired)
             {
-                rtbChat.BeginInvoke(new Action(() => SafeAppendChat(remitente, contenido)));
+                try
+                {
+                    rtbChat.BeginInvoke(new Action(() => SafeAppendChat(remitente, contenido)));
+                }
+                catch { }
                 return;
             }
 
@@ -711,7 +742,11 @@ namespace SERVIDORES_SOCKETS
             if (this.IsDisposed || !cmbDestino.IsHandleCreated) return;
             if (cmbDestino.InvokeRequired)
             {
-                cmbDestino.BeginInvoke(new Action(() => SafeUpdateComboDestinatarios(usuarios)));
+                try
+                {
+                    cmbDestino.BeginInvoke(new Action(() => SafeUpdateComboDestinatarios(usuarios)));
+                }
+                catch { }
                 return;
             }
 

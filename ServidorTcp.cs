@@ -202,7 +202,7 @@ namespace SERVIDORES_SOCKETS
                     // Por ahora, solo respondemos a comandos de latido (ping/keepalive) si los hubiera
                     if (linea.Equals("PING", StringComparison.OrdinalIgnoreCase))
                     {
-                        writer.WriteLine("PONG");
+                        cliente?.EnviarLinea("PONG");
                     }
                     else if (linea.StartsWith("MSG|", StringComparison.OrdinalIgnoreCase))
                     {
@@ -311,13 +311,7 @@ namespace SERVIDORES_SOCKETS
                 {
                     try
                     {
-                        if (cliente.Socket.Connected)
-                        {
-                            NetworkStream stream = cliente.Socket.GetStream();
-                            byte[] data = Encoding.UTF8.GetBytes("SERVER_SHUTDOWN\r\n");
-                            stream.Write(data, 0, data.Length);
-                            stream.Flush();
-                        }
+                        cliente.EnviarLinea("SERVER_SHUTDOWN");
                     }
                     catch { }
                     cliente.Close();
